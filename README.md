@@ -30,4 +30,14 @@ I got tired of missing issues from my repos simply because I'd forgotten to watc
 
 `--unwatch`: subscribe to any repos listed that aren't currently being watched.
 
-![Example usage](https://cldup.com/Stp_eqh72z.png)
+![Example usage](https://cldup.com/nNVjr_LUKG.png)
+
+## Recommended Use
+
+The following command will make sure that you're watching all of your own repos that are public and unforked.
+
+`gh-watchmyself --owner --public --unforked --watch`
+
+---
+
+Licensed MIT, Copyright 2015 Nathanael C. Fritz
