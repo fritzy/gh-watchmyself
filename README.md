@@ -30,3 +30,4 @@ I got tired of missing issues from my repos simply because I'd forgotten to watc
 
 `--unwatch`: subscribe to any repos listed that aren't currently being watched.
 
+![Example usage](https://cldup.com/Stp_eqh72z.png)
