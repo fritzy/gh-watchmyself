@@ -10,7 +10,7 @@ I got tired of missing issues from my repos simply because I'd forgotten to watc
 
 ## Usage
 
-`gh-watchmyself [--admin] [--pull] [--push] [--owner] [--watch]`
+`gh-watchmyself [--admin] [--pull] [--push] [--owner] [--public] [--unforked] [--forked] [--watch] [--unwatch]`
 
 `--admin`: include only repos with admin permission.
 
@@ -20,5 +20,13 @@ I got tired of missing issues from my repos simply because I'd forgotten to watc
 
 `--owner`: include only repos where you're the owner.
 
+`--public`: include only public repos.
+
+`--forked`: include only forked repos.
+
+`--unforked`: include only unforked repos.
+
 `--watch`: subscribe to any repos listed that aren't currently being watched.
+
+`--unwatch`: subscribe to any repos listed that aren't currently being watched.
 

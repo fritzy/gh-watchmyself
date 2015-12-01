@@ -10,8 +10,8 @@ const read = require('read');
 const crypto = require('crypto');
 const config = require('home-config').load('.gh-watchmyself', {token: '', user: ''});
 const args = require('optimist')
-  .boolean(['admin', 'watch', 'push', 'pull', 'owner'])
-  .usage("Usage: $0 [--push] [--pull] [--admin] [--watch] [--owner]")
+  .boolean(['admin', 'watch', 'push', 'pull', 'owner', 'public', 'unforked', 'forked'])
+  .usage("Usage: $0 [--push] [--pull] [--admin] [--watch] [--owner] [--public] [--unforked] [--forked]")
   .argv;
 
 let github = new GitHubApi({
@@ -120,6 +120,9 @@ function addRepo(res) {
         && (!args.admin || (args.admin && repo.permissions.admin))
         && (!args.pull || (args.pull && repo.permissions.pull))
         && (!args.owner || (args.owner && repo.owner.login === config.user))
+        && (!args.public || (args.public && !repo.private))
+        && (!args.unforked || (args.unforked && !repo.fork))
+        && (!args.forked || (args.forked && repo.fork))
         ) {
       repos.add(repo.full_name);
     }
@@ -195,16 +198,22 @@ function start() {
             reposa.push(v);
           }
           async.each(reposa, (repo, acb) => {
+            let user_repo = repo.split('/');
             if (watched.has(repo)) {
-              console.log(colors.green(unicons.check) + ' ' + repo);
-              return acb();
+              if (args.unwatch) {
+                console.log(colors.yellow("Unwatching... ") + repo);
+                return github.repos.unWatch({user: user_repo[0], repo: user_repo[1]}, acb);
+              } else {
+                console.log(colors.green(unicons.check) + ' ' + repo);
+                return acb();
+              }
             } else {
               if (args.watch) {
-                let user_repo = repo.split('/');
                 console.log(colors.yellow("Watching... ") + repo);
                 return github.repos.watch({user: user_repo[0], repo: user_repo[1]}, acb);
               } else {
                 console.log(colors.red(unicons.cross) + ' ' + repo);
+                acb();
               }
             }
           }, (err) => {
