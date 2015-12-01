@@ -10,15 +10,15 @@ const crypto = require('crypto');
 const config = require('home-config').load('.gh-watchmyself', {token: '', user: ''});
 
 let github = new GitHubApi({
-    version: "3.0.0",
-    debug: false,
-    protocol: "https",
-    host: "api.github.com", // should be api.github.com for GitHub
-    pathPrefix: "", // for some GHEs; none for GitHub
-    timeout: 5000,
-    headers: {
-        "user-agent": "Github-WatchMyself" // GitHub is happy with a unique user agent
-    }
+  version: "3.0.0",
+  debug: false,
+  protocol: "https",
+  host: "api.github.com", // should be api.github.com for GitHub
+  pathPrefix: "", // for some GHEs; none for GitHub
+  timeout: 5000,
+  headers: {
+    "user-agent": "Github-WatchMyself" // GitHub is happy with a unique user agent
+  }
 });
 
 if (!config.token.length) {
@@ -46,29 +46,27 @@ function authBasic(user, pass) {
   });
   config.user = user;
   github.authorization.create({
-      scopes: ["user", "public_repo", "repo", "repo:status", "gist"],
-      note: "gh-watchmyself",
-      note_url: "https://github.com/fritzy/gh-watchmyself",
-      headers: {
-      }
+    scopes: ["user", "public_repo", "repo", "repo:status", "gist"],
+    note: "gh-watchmyself",
+    note_url: "https://github.com/fritzy/gh-watchmyself",
   }, function(err, res) {
     if (err && JSON.parse(err.message).documentation_url === 'https://developer.github.com/v3/auth#working-with-two-factor-authentication') {
       read({
         prompt: "Two-Factor Code:",
       }, (err, otp) => {
         github.authorization.create({
-            scopes: ["user", "public_repo", "repo", "repo:status", "gist"],
-            note: "gh-watchmyself",
-            note_url: "https://github.com/fritzy/gh-watchmyself",
-            headers: {
-                "X-GitHub-OTP": parseInt(otp, 10)
-            }
+          scopes: ["user", "public_repo", "repo", "repo:status", "gist"],
+          note: "gh-watchmyself",
+          note_url: "https://github.com/fritzy/gh-watchmyself",
+          headers: {
+            "X-GitHub-OTP": parseInt(otp, 10)
+          }
         }, function(err, res) {
           if (err) {
             let errMsg = JSON.parse(err.message);
             console.log("Error:", errMsg.message, errMsg.documentation_url);
             if (errMsg.documentation_url === 'https://developer.github.com/v3/oauth_authorizations/#create-a-new-authorization') {
-              console.log("You may already have a token named \"gh-watchmyself\".");
+              console.log("You may already have a token named \"gh-watchmyself\" at https://github.com/settings/tokens");
             }
             process.exit(1);
           }
@@ -82,7 +80,7 @@ function authBasic(user, pass) {
         let errMsg = JSON.parse(err.message);
         console.log("Error:", errMsg.message, errMsg.documentation_url);
         if (errMsg.documentation_url === 'https://developer.github.com/v3/oauth_authorizations/#create-a-new-authorization') {
-          console.log("You may already have a token named \"gh-watchmyself\".");
+          console.log("You may already have a token named \"gh-watchmyself\" at https://github.com/settings/tokens");
         }
         process.exit(1);
       }
@@ -126,7 +124,7 @@ function start() {
   spinner.start();
 
   let count = 0;
-  github.repos.getWatched({
+  github.repos.getSubscriptions({
       user: config.user,
   }, function(err, res) {
     addWatched(res);
