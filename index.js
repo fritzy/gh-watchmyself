@@ -1,4 +1,5 @@
 'use strict';
+
 const GitHubApi = require("github");
 const util = require('util');
 const async = require('async');
@@ -8,6 +9,10 @@ const unicons = require('unicons');
 const read = require('read');
 const crypto = require('crypto');
 const config = require('home-config').load('.gh-watchmyself', {token: '', user: ''});
+const args = require('optimist')
+  .boolean(['admin', 'watch', 'push', 'pull', 'owner'])
+  .usage("Usage: $0 [--push] [--pull] [--admin] [--watch] [--owner]")
+  .argv;
 
 let github = new GitHubApi({
   version: "3.0.0",
@@ -111,7 +116,13 @@ function addWatched(res) {
 
 function addRepo(res) {
   res.forEach(function (repo) {
-    repos.add(repo.full_name);
+    if ((!args.push || (args.push && repo.permissions.push)) 
+        && (!args.admin || (args.admin && repo.permissions.admin))
+        && (!args.pull || (args.pull && repo.permissions.pull))
+        && (!args.owner || (args.owner && repo.owner.login === config.user))
+        ) {
+      repos.add(repo.full_name);
+    }
   });
 };
 
@@ -179,11 +190,26 @@ function start() {
           }
           spinner.stop(true);
           console.log("Loading Repos " + '.'.repeat(count));
-          repos.forEach(function (repo) {
+          let reposa = [];
+          for (let v of repos) {
+            reposa.push(v);
+          }
+          async.each(reposa, (repo, acb) => {
             if (watched.has(repo)) {
               console.log(colors.green(unicons.check) + ' ' + repo);
+              return acb();
             } else {
-              console.log(colors.red(unicons.cross) + ' ' + repo);
+              if (args.watch) {
+                let user_repo = repo.split('/');
+                console.log(colors.yellow("Watching... ") + repo);
+                return github.repos.watch({user: user_repo[0], repo: user_repo[1]}, acb);
+              } else {
+                console.log(colors.red(unicons.cross) + ' ' + repo);
+              }
+            }
+          }, (err) => {
+            if (err) {
+              throw err;
             }
           });
         });
